@@ -73,29 +73,7 @@ These are mandatory and must be completed before running the workflow:
     * Matching the format shown above
 
 
-
-### Step 3: User Input Processing
-
-* Upon receiving the user’s response:
-
-  * The agent MUST verify that:
-
-    * The response contains a `[default]` section header
-    * All four required keys are present:
-
-      * `client_secret`
-      * `host`
-      * `access_token`
-      * `client_token`
-  * **IF** any required element is missing:
-
-    * The agent MUST stop.
-    * The agent MUST instruct the user to fix the credentials.
-    * The agent MUST NOT write anything to disk.
-
-
-
-### Step 4: Writing `.edgerc`
+### Step 3: Writing `.edgerc`
 
 * **ONLY IF** all required elements are present:
 
@@ -107,15 +85,12 @@ These are mandatory and must be completed before running the workflow:
     ```
   * The agent MUST write the content:
 
-    * Exactly as provided
-    * Without modification
-    * Without reformatting
     * Without adding or removing characters
     * Without adding comments, whitespace, or extra lines
 
 
 
-### Step 5: Re-validation
+### Step 4: Re-validation
 
 * After writing the file, the agent MUST re-run:
 
@@ -140,7 +115,6 @@ These are mandatory and must be completed before running the workflow:
 The agent MUST NOT:
 
 * Infer, fabricate, or auto-generate `.edgerc` values
-* Modify user-provided credentials
 * Merge with existing `.edgerc` content
 * Add logging, comments, or explanatory text inside `$HOME/.edgerc`
 * Proceed if credential validation fails
