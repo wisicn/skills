@@ -36,9 +36,28 @@ These are mandatory and must be completed before running the workflow:
 - If the scripts take a long time to run, inform the user that the akamai CLI is still being installed and ask them to wait.
 - If install fails, stop and report the error.
 
-3) **Configure `.edgerc`**
-- Run `scripts/check_edgerc.sh`.
-- If the scripts failes, asks the user to paste their `[default]` section and saves it to `$HOME/.edgerc`. then run again the script `scripts/check_edgerc.sh` to check the formate. you can display an example .edgerc file to the user below and ask them to follow this formate:
+## 3) Configure `.edgerc` (Machine-Enforceable Specification)
+
+### Step 1: Initial Validation
+
+* The agent MUST execute:
+
+  ```bash
+  scripts/check_edgerc.sh -q
+  ```
+
+* **IF** the command exits successfully (exit code `0`):
+
+  * The agent MUST proceed to the next step in the workflow.
+  * The agent MUST NOT prompt the user for `.edgerc` content.
+
+
+
+### Step 2: Failure Handling
+
+* **IF** the command exits with a non-zero exit code:
+
+  * The agent MUST display the following example to the user **before** requesting any credentials:
 
     ```ini
     [default]
@@ -47,8 +66,85 @@ These are mandatory and must be completed before running the workflow:
     access_token = your_access_token
     client_token = your_client_token
     ```
-- In chat, **do not require Ctrl+D or typing END**. Ask the user to paste the full `[default]` block in a single message, then confirm you've received it and proceed,do not add any extra string when you write to `$HOME/.edgerc`.
-- If the user cannot provide valid credentials, stop and ask them to fix it.
+
+  * The agent MUST instruct the user to:
+
+    * Paste the **entire `[default]` block**
+    * In **one single message**
+    * Matching the format shown above
+
+
+
+### Step 3: User Input Processing
+
+* Upon receiving the user’s response:
+
+  * The agent MUST verify that:
+
+    * The response contains a `[default]` section header
+    * All four required keys are present:
+
+      * `client_secret`
+      * `host`
+      * `access_token`
+      * `client_token`
+  * **IF** any required element is missing:
+
+    * The agent MUST stop.
+    * The agent MUST instruct the user to fix the credentials.
+    * The agent MUST NOT write anything to disk.
+
+
+
+### Step 4: Writing `.edgerc`
+
+* **ONLY IF** all required elements are present:
+
+  * The agent MUST confirm receipt using a minimal acknowledgement (e.g. `Received.`).
+  * The agent MUST write the user-provided content to:
+
+    ```
+    $HOME/.edgerc
+    ```
+  * The agent MUST write the content:
+
+    * Exactly as provided
+    * Without modification
+    * Without reformatting
+    * Without adding or removing characters
+    * Without adding comments, whitespace, or extra lines
+
+
+
+### Step 5: Re-validation
+
+* After writing the file, the agent MUST re-run:
+
+  ```bash
+  scripts/check_edgerc.sh -q
+  ```
+
+* **IF** the command exits successfully:
+
+  * The agent MUST proceed with the workflow.
+
+* **IF** the command exits with a non-zero exit code:
+
+  * The agent MUST stop.
+  * The agent MUST instruct the user to fix the `.edgerc` credentials.
+  * The agent MUST NOT attempt further retries or auto-corrections.
+
+
+
+### Forbidden Actions (Hard Constraints)
+
+The agent MUST NOT:
+
+* Infer, fabricate, or auto-generate `.edgerc` values
+* Modify user-provided credentials
+* Merge with existing `.edgerc` content
+* Add logging, comments, or explanatory text inside `$HOME/.edgerc`
+* Proceed if credential validation fails
 
 4) **Verify Akamai CLI config + property-manager package**
 - Run `scripts/verify_akamai_cli_config.sh`.

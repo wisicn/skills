@@ -7,6 +7,20 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 EDGERC_FILE="$HOME/.edgerc"
+QUIET_MODE=false
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -q|--quiet)
+            QUIET_MODE=true
+            shift
+            ;;
+        *)
+            shift
+            ;;
+    esac
+done
 
 # Function to validate INI format with required pattern
 validate_edgerc() {
@@ -72,6 +86,27 @@ validate_input() {
 }
 
 # Main logic
+
+if [[ "$QUIET_MODE" == true ]]; then
+    # Quiet mode: just check and exit
+    if [[ -f "$EDGERC_FILE" ]] && validate_edgerc "$EDGERC_FILE"; then
+        echo -e "${GREEN}✓ Found valid .edgerc file at: $EDGERC_FILE${NC}"
+        exit 0
+    else
+        echo ".edgerc file does not exist or invalid format"
+        echo "Please copy and paste your.edgerc configuration into $EDGERC_FILE"
+        echo "Expected format:"
+        echo ""
+        echo "[default]"
+        echo "client_secret = your_client_secret"
+        echo "host = your_akamai_host"
+        echo "access_token = your_access_token"
+        echo "client_token = your_client_token"
+        exit 1
+    fi
+fi
+
+# Interactive mode
 echo "Checking for Akamai .edgerc configuration..."
 echo ""
 
@@ -104,7 +139,7 @@ else
     echo ""
     echo "Paste your configuration (press Ctrl+D or type 'END' on a new line when done):"
     echo ""
-    
+
     # Read multi-line input
     user_input=""
     while IFS= read -r line; do
@@ -113,16 +148,16 @@ else
         fi
         user_input+="$line"$'\n'
     done
-    
+
     # Validate the input
     if validate_input "$user_input"; then
         # Create directory if it doesn't exist
         mkdir -p "$(dirname "$EDGERC_FILE")"
-        
+
         # Save the configuration
         echo -n "$user_input" > "$EDGERC_FILE"
         chmod 600 "$EDGERC_FILE"
-        
+
         echo ""
         echo -e "${GREEN}✓ Configuration saved successfully to: $EDGERC_FILE${NC}"
         echo ""
