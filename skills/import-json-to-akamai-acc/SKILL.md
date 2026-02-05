@@ -83,10 +83,8 @@ These are mandatory and must be completed before running the workflow:
     ```
     $HOME/.edgerc
     ```
-  * The agent MUST write the content:
+  * The agent MUST rewrite the content into a multi-line INI format that matches the display example shown to the user in previous instructions.
 
-    * Without adding or removing characters
-    * Without adding comments, whitespace, or extra lines
 
 
 
@@ -116,7 +114,6 @@ The agent MUST NOT:
 
 * Infer, fabricate, or auto-generate `.edgerc` values
 * Merge with existing `.edgerc` content
-* Add logging, comments, or explanatory text inside `$HOME/.edgerc`
 * Proceed if credential validation fails
 
 4) **Verify Akamai CLI config + property-manager package**
