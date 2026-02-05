@@ -36,7 +36,7 @@ These are mandatory and must be completed before running the workflow:
 - If the scripts take a long time to run, inform the user that the akamai CLI is still being installed and ask them to wait.
 - If install fails, stop and report the error.
 
-## 3) Configure `.edgerc` (Machine-Enforceable Specification)
+## 3) Configure `.edgerc`
 
 ### Step 1: Initial Validation
 
@@ -70,7 +70,6 @@ These are mandatory and must be completed before running the workflow:
   * The agent MUST instruct the user to:
 
     * Paste the **entire `[default]` block**
-    * In **one single message**
     * Matching the format shown above
 
 
