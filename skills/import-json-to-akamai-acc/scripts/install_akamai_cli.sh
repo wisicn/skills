@@ -5,6 +5,9 @@
 
 set -e
 
+# Fallback version when GitHub API rate limit is exceeded
+FALLBACK_VERSION="2.0.3"
+
 # Detect OS and architecture
 detect_os() {
     local OS_NAME
@@ -66,8 +69,9 @@ get_latest_version() {
     LATEST_VERSION=$(echo "$RELEASE_INFO" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' | sed 's/v//')
 
     if [ -z "$LATEST_VERSION" ]; then
-        echo "❌ Failed to fetch latest version from GitHub" >&2
-        exit 1
+        echo "⚠️  Failed to fetch latest version from GitHub (possibly due to API rate limit)" >&2
+        echo "   Using fallback version: v${FALLBACK_VERSION}" >&2
+        LATEST_VERSION="$FALLBACK_VERSION"
     fi
 
     echo "✅ Latest version: v${LATEST_VERSION}" >&2
