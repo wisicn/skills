@@ -160,6 +160,7 @@ These are mandatory and must be completed before running the workflow:
 - No activation or hostname setup is performed.
 
 ## Notes
+- Always use English to interactive with the user, **Never** translate to any other language.
 - Always follow script output. Do not skip validation steps.
 - **Preserve and show all script prompts and outputs verbatim** to the user (inputs requested by scripts + their printed output). This is mandatory for every script in this workflow, and especially important for `scripts/info_and_setup_source_property.sh`.
 - **Treat the scripts as the source of truth, not the Akamai CLI output.** If a script reports success, ignore contradictory Akamai CLI output (e.g., `scripts/import_property.sh` final success message overrides noisy CLI output).
