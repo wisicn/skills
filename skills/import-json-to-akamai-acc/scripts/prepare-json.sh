@@ -29,15 +29,29 @@ fi
 # Use jq to:
 # 1. Recursively walk through JSON and delete all "advancedOverride" keys
 # 2. Remove all behaviors where "name" == "advanced"
+# 3. Remove read-only behaviors: "dnsPrefresh"
+# 4. Remove read-only criteria: "matchAdvanced"
 jq '
-def remove_advanced_behaviors:
+def remove_readonly_elements:
     walk(
         if type == "object" then
             # Remove advancedOverride key
             del(.advancedOverride)
-            | # Also filter out behaviors with name == "advanced"
+            | # Filter out behaviors with name == "advanced" or read-only behaviors
             if has("behaviors") and (.behaviors | type == "array") then
-                .behaviors = [.behaviors[] | select(.name != "advanced")]
+                .behaviors = [.behaviors[] | select(.name != "advanced" and .name != "dnsPrefresh")]
+            else
+                .
+            end
+            | # Filter out criteria/matches with name == "matchAdvanced"
+            if has("criteria") and (.criteria | type == "array") then
+                .criteria = [.criteria[] | select(.name != "matchAdvanced")]
+            else
+                .
+            end
+            | # Also check for "match" field (alternative criteria structure)
+            if has("match") and (.match | type == "object") and (.match.name == "matchAdvanced") then
+                del(.match)
             else
                 .
             end
@@ -45,7 +59,7 @@ def remove_advanced_behaviors:
             .
         end
     );
-remove_advanced_behaviors' "$INPUT_FILE" > "${OUTPUT_FILE}.tmp"
+remove_readonly_elements' "$INPUT_FILE" > "${OUTPUT_FILE}.tmp"
 
 # Check if jq succeeded
 if [ $? -eq 0 ]; then
