@@ -3,8 +3,6 @@
 # import_property.sh - Import Akamai property JSON file to ACC
 # Usage: ./import_property.sh <json_file> <property_name>
 
-set -e
-
 JSON_FILE="$1"
 PROPERTY_NAME="$2"
 
@@ -88,16 +86,18 @@ echo "Executing: $AKAMAI_CMD --section default pm property-update --file $JSON_F
 
 if [ $? -eq 0 ]; then
     echo "✓ Successfully imported JSON configuration to property: $PROPERTY_NAME"
+    echo "✅ Akamai property import completed!"
+    echo "Property name: $PROPERTY_NAME"
+    echo "JSON file: $JSON_FILE"
+    exit 0
 else
-    echo "✗ Failed to import JSON configuration, check the JSON file, remove the advanced metada from the JSON file"
+    echo "✗ Failed to import JSON configuration. Please check the JSON file and remove any read-only behaviors or criteria."
+    echo "The intermediate property created in Step 1 will now be deleted."
     echo "Executing: $AKAMAI_CMD --section default pm delete -p $PROPERTY_NAME --force-delete"
     "$AKAMAI_CMD" --section default pm delete -p "$PROPERTY_NAME" --force-delete
+    echo "✓ Property '$PROPERTY_NAME' has been deleted."
+    echo "Please run ./prepare-json.sh to fix the JSON file, then run this script again."
     exit 1
 fi
 
-
-
-echo "✅ Akamai property import completed!"
-echo "Property name: $PROPERTY_NAME"
-echo "JSON file: $JSON_FILE"
 
