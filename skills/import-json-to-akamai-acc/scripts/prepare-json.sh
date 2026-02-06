@@ -26,6 +26,21 @@ if ! command -v jq &> /dev/null; then
     exit 1
 fi
 
+echo "Analyzing JSON file for removable items..."
+
+# Extract removed behavior names (before processing)
+REMOVED_BEHAVIORS=$(jq -r '
+[ .. | objects | select(has("behaviors") and (.behaviors | type == "array")) | .behaviors[] | select(.name == "advanced" or .name == "dnsPrefresh") | .name ] | group_by(.) | map({name: .[0], count: length}) | .[] | "  - \(.name): \(.count) item(s)"
+' "$INPUT_FILE")
+
+# Extract removed criteria names (before processing)
+REMOVED_CRITERIA=$(jq -r '
+[ .. | objects | select(has("criteria") and (.criteria | type == "array")) | .criteria[] | select(.name == "matchAdvanced") | .name ] | group_by(.) | map({name: .[0], count: length}) | .[] | "  - \(.name): \(.count) item(s)"
+' "$INPUT_FILE")
+
+# Count advancedOverride occurrences
+ADVANCED_OVERRIDE_COUNT=$(jq '[.. | objects | select(has("advancedOverride"))] | length' "$INPUT_FILE")
+
 # Use jq to:
 # 1. Recursively walk through JSON and delete all "advancedOverride" keys
 # 2. Remove all behaviors where "name" == "advanced"
@@ -43,15 +58,9 @@ def remove_readonly_elements:
             else
                 .
             end
-            | # Filter out criteria/matches with name == "matchAdvanced"
+            | # Filter out criteria with name == "matchAdvanced"
             if has("criteria") and (.criteria | type == "array") then
                 .criteria = [.criteria[] | select(.name != "matchAdvanced")]
-            else
-                .
-            end
-            | # Also check for "match" field (alternative criteria structure)
-            if has("match") and (.match | type == "object") and (.match.name == "matchAdvanced") then
-                del(.match)
             else
                 .
             end
@@ -64,7 +73,29 @@ remove_readonly_elements' "$INPUT_FILE" > "${OUTPUT_FILE}.tmp"
 # Check if jq succeeded
 if [ $? -eq 0 ]; then
     mv "${OUTPUT_FILE}.tmp" "$OUTPUT_FILE"
-    echo "Successfully removed all 'advancedOverride' fields."
+    echo ""
+    echo "========================================"
+    echo "  Removal Summary"
+    echo "========================================"
+    echo ""
+    echo "[Behaviors Removed]"
+    if [ -n "$REMOVED_BEHAVIORS" ]; then
+        echo "$REMOVED_BEHAVIORS"
+    else
+        echo "  (none)"
+    fi
+    echo ""
+    echo "[Criteria Removed]"
+    if [ -n "$REMOVED_CRITERIA" ]; then
+        echo "$REMOVED_CRITERIA"
+    else
+        echo "  (none)"
+    fi
+    echo ""
+    echo "[Fields Removed]"
+    echo "  - advancedOverride: $ADVANCED_OVERRIDE_COUNT occurrence(s)"
+    echo ""
+    echo "========================================"
     echo "Output saved to: $OUTPUT_FILE"
 else
     rm -f "${OUTPUT_FILE}.tmp"
