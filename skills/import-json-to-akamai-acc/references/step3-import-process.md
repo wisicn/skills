@@ -74,7 +74,7 @@ If the script succeeds:
 ---
 
 ## Step 3.4: Clean Up
-
+**Important: This step is mandatory and must not be skipped, even if previous steps failed.** 
 Delete temporary files:
 - Delete `snippets-logs.log` inside the skill directory if it exists
 - Delete `JSON_PATH` if it still exists
