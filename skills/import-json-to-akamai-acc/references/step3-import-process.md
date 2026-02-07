@@ -22,10 +22,11 @@ Store the file path in a variable like `JSON_PATH`.
 
 ## Step 3.2: Normalize JSON
 
-Run the JSON preparation script:
+**Attention: This step is mandatory. Do not skip it even if you already have the destination property name.** Run the JSON preparation script:
 ```bash
 scripts/prepare-json.sh "$JSON_PATH"
 ```
+
 
 ### Requirements
 
