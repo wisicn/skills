@@ -1,25 +1,22 @@
 ---
 name: import-json-to-akamai-acc
-description: Import Akamai Property Manager JSON into Akamai Control Center (ACC) using Akamai CLI. Use when asked to “import json to akamai”, “import json to akamai acc”, “upload property JSON to Akamai”, “import Akamai property JSON”, or “apply JSON config to Akamai property”.
+description: This skill imports an Akamai Property Manager configuration file (JSON) into Akamai Control Center (ACC) using Akamai CLI. This skill should be used when users ask to "import json to akamai", "import json to akamai acc", "upload property JSON to Akamai", "import Akamai property JSON", or "apply JSON config to Akamai property".
 ---
 
 # Import JSON to Akamai ACC
 
 ## Purpose
-This skill imports an Akamai Property Manager configuration file (JSON) exported from another ACC account into your own ACC **for review/reference only**. It does **not** add hostnames or activate the property.
+
+This skill imports an Akamai Property Manager configuration file (JSON) exported from another ACC account into the user's ACC **for review/reference only**. It does **not** add hostnames or activate the property.
 
 ## Pre-requirements (manual)
-These are mandatory and must be completed before running the workflow:
-1. Valid ACC login credentials and a configured PAPI client (EdgeGrid): https://techdocs.akamai.com/developer/docs/edgegrid
-2. A valid contract in ACC that contains Akamai products.
-3. A **source (golden) property** in the correct contract/group. New properties are created by copying an existing property in the same contract/group.
-   - Common default name: `ai-agent-example`
-4. If the imported property must live in a specific contract/group, create a source property **in that group** first. The source property’s contents do not matter; it will be overwritten by the JSON import.
+
+Requirements: ACC credentials with PAPI client, valid contract, and a source (golden) property. See [references/prerequisites.md](references/prerequisites.md) for details.
 
 ## Workflow (follow in order)
 
 ### 1) **Explain the purpose + prerequisites**
-- Display the SKILL.md's **Purpose** and **Pre-requirements Pre-requirements (manual)** sections to then user.
+- Display the SKILL.md's **Purpose** and **Pre-requirements (manual)** sections to the user.
 - Run `scripts/info_and_setup_source_property.sh`.
 - The script prints the pre-requirements above and then asks for a **source property** name.
 - The chosen source property is saved to `~/.acc_golden_example` for reuse.
@@ -33,7 +30,7 @@ These are mandatory and must be completed before running the workflow:
 ### 2) **Verify Akamai CLI availability**
 - Run `scripts/verify_akamai_cli_executable.sh`.
 - If it fails, run `scripts/install_akamai_cli.sh`, then re-run `scripts/verify_akamai_cli_executable.sh`.
-- If the scripts take a long time to run, inform the user that the akamai CLI is still being installed and ask them to wait.
+- If the scripts take a long time to run, inform the user that the Akamai CLI is still being installed and ask them to wait.
 - If install fails, stop and report the error.
 
 ### 3) Configure `.edgerc`
@@ -77,7 +74,7 @@ These are mandatory and must be completed before running the workflow:
 
   * **ONLY IF** all required elements are present:
 
-    * The agent MUST confirm receipt using a minimal acknowledgement (e.g. `Received.`).
+    * The agent MUST confirm receipt using a minimal acknowledgment (e.g. `Received`).
     * The agent MUST write the user-provided content to:
 
       ```
@@ -118,15 +115,15 @@ These are mandatory and must be completed before running the workflow:
 
 ### 4) **Verify Akamai CLI config + property-manager package**
 - Run `scripts/verify_akamai_cli_config.sh`.
-- If the scripts take a long time to run, inform the user that the akamai CLI is still being installed and ask them to wait.
-- If it fails, this is **blocking**. Stop, show the output, and ask the user to fix credentials/network and restart from step 1.
+- If the scripts take a long time to run, inform the user that the Akamai CLI is still being installed and ask them to wait.
+- If it fails, this is **a blocking issue**. Stop, show the output, and ask the user to fix credentials/network and restart from step 1.
 
 ### 5) **Collect JSON input**
 - Prompt the user to supply either:
   - A local file path to the JSON file, or
   - A downloadable URL accessible by the AI agent.
 - If a URL is provided, download the file and save it to a temporary location such as `/tmp/akamai-import.json`.
-- **Important:** Instruct users **not** to copy/paste JSON content into chat, tell users `the Large JSON files consume excessive tokens and may be truncated`.
+- **Important:** Instruct users **not** to copy/paste JSON content into chat. Explain that large JSON files consume excessive tokens and may be truncated.
 - Keep the file path in a variable like `JSON_PATH`.
 
 ### 6) **Normalize JSON**
@@ -143,7 +140,7 @@ These are mandatory and must be completed before running the workflow:
   - Report the error and stop.
   - Delete `JSON_PATH`.
   - Tell the user to remove the partially created destination property in Akamai ACC if it exists.
-- If the script run succeeds, ignore the akamai CLI's output message, **do not ask the user if they want to do anything else**. Proceed directly to cleanup.
+- If the script succeeds, ignore the Akamai CLI's output message and **do not ask the user if they want to do anything else**. Proceed directly to cleanup.
 
 ### 8) **Clean up**
 - Delete the `snippets-logs.log` inside the skill directory if it exists.
