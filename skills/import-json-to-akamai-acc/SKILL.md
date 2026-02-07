@@ -23,33 +23,9 @@ Display the Purpose and Pre-requirements sections, then run `scripts/info_and_se
 
 Install and configure the Akamai CLI, set up `.edgerc` credentials, and verify the configuration. See [references/step2-akamai-cli-setup.md](references/step2-akamai-cli-setup.md) for detailed instructions.
 
-### 3) **Collect JSON input**
-- Prompt the user to supply either:
-  - A local file path to the JSON file, or
-  - A downloadable URL accessible by the AI agent.
-- If a URL is provided, download the file and save it to a temporary location such as `/tmp/akamai-import.json`.
-- **Important:** Instruct users **not** to copy/paste JSON content into chat. Explain that large JSON files consume excessive tokens and may be truncated.
-- Keep the file path in a variable like `JSON_PATH`.
+### 3) **Import JSON to property**
 
-### 4) **Normalize JSON**
-- Run `scripts/prepare-json.sh "$JSON_PATH"`.
-- This requires `jq`.
-  - If `jq` is missing, attempt to install it (`apt-get`, `brew`, etc.).
-  - If install fails, stop and tell the user to install `jq` manually, then restart.
-- If `prepare-json.sh` fails, stop and delete the file at `JSON_PATH`.
-
-### 5) **Import to destination property**
-- Ask the user for the **destination property name** (must be one word, no spaces).
-- Run `scripts/import_property.sh "$JSON_PATH" "$DEST_PROPERTY"`.
-- If it fails:
-  - Report the error and stop.
-  - Delete `JSON_PATH`.
-  - Tell the user to remove the partially created destination property in Akamai ACC if it exists.
-- If the script succeeds, ignore the Akamai CLI's output message and **do not ask the user if they want to do anything else**. Proceed directly to cleanup.
-
-### 6) **Clean up**
-- Delete the `snippets-logs.log` inside the skill directory if it exists.
-- Delete `JSON_PATH` if it still exists.
+Collect JSON input (file path or URL), normalize it with `prepare-json.sh`, import to the destination property, and clean up temporary files. See [references/step3-import-process.md](references/step3-import-process.md) for detailed instructions.
 
 ## Inputs you must request
 - Source property name (set in step 1; default `ai-agent-example`)

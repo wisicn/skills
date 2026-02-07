@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This skill imports an Akamai Property Manager configuration file (JSON) exported from another ACC account into your own ACC **for review/reference only**. It does **not** add hostnames or activate the property.
+This skill imports an Akamai Property Manager configuration file (JSON) exported from another ACC account into the user's ACC **for review/reference only**. It does **not** add hostnames or activate the property.
 
 ## Pre-requirements (manual)
 

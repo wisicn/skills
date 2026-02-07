@@ -1,4 +1,4 @@
-# Workflow Steps 2 **Set up Akamai CLI and credentials**
+# Workflow Step 2: Set up Akamai CLI and Credentials
 
 This document covers the setup and configuration of Akamai CLI, credentials, and validation.
 
