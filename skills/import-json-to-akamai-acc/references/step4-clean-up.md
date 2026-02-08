@@ -19,6 +19,7 @@ Delete temporary files:
 rm -f snippets-logs.log
 rm -f "$JSON_PATH"
 ```
+⚠️ **NOTE**: Do **NOT** use `prepare-json.sh` for cleanup. The `prepare-json.sh` script is **only** for JSON normalization (Step 3.2). Cleanup is a separate operation using `rm` commands only.
 
 **Validation Checklist:**
 - [ ] `snippets-logs.log` deleted (if exists)
