@@ -25,7 +25,11 @@ Install and configure the Akamai CLI, set up `.edgerc` credentials, and verify t
 
 ### 3) **Import JSON to property**
 
-Collect JSON input (file path or URL), normalize it with `prepare-json.sh`, and import to the destination property. See [references/step3-import-process.md](references/step3-import-process.md) for detailed instructions.
+- 3.1 Collect JSON input (file path or URL)
+- 3.2 **MANDATORY**: Normalize with prepare-json.sh ⚠️ DO NOT SKIP
+- 3.3 Import to destination property
+
+See [references/step3-import-process.md](references/step3-import-process.md) for detailed instructions.
 
 ### 4) **Clean up temporary files**
 
