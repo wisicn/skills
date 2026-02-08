@@ -21,6 +21,8 @@ This document covers collecting JSON input, normalizing it, importing to Akamai,
 - Set `JSON_PATH="/tmp/akamai-import.json"`
 
 **If local path provided:**
+- Do NOT copy/paste JSON content directly
+- Do NOT read JSON files - validate path only
 - Validate file exists
 - Set `JSON_PATH` to the provided path
 
