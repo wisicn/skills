@@ -41,11 +41,15 @@ REMOVED_CRITERIA=$(jq -r '
 # Count advancedOverride occurrences
 ADVANCED_OVERRIDE_COUNT=$(jq '[.. | objects | select(has("advancedOverride"))] | length' "$INPUT_FILE")
 
+# Count adaptiveAcceleration source modifications needed
+ADAPTIVE_ACCEL_COUNT=$(jq '[.. | objects | select(has("behaviors") and (.behaviors | type == "array")) | .behaviors[] | select(.name == "adaptiveAcceleration" and .options.source == "mPulse")] | length' "$INPUT_FILE")
+
 # Use jq to:
 # 1. Recursively walk through JSON and delete all "advancedOverride" keys
 # 2. Remove all behaviors where "name" == "advanced"
 # 3. Remove read-only behaviors: "dnsPrefresh"
 # 4. Remove read-only criteria: "matchAdvanced"
+# 5. Fix adaptiveAcceleration source: change "mPulse" to "MPULSE"
 jq '
 def remove_readonly_elements:
     walk(
@@ -54,7 +58,15 @@ def remove_readonly_elements:
             del(.advancedOverride)
             | # Filter out behaviors with name == "advanced" or read-only behaviors
             if has("behaviors") and (.behaviors | type == "array") then
-                .behaviors = [.behaviors[] | select(.name != "advanced" and .name != "dnsPrefresh")]
+                .behaviors = [.behaviors[] | 
+                    select(.name != "advanced" and .name != "dnsPrefresh") |
+                    # Fix adaptiveAcceleration source case
+                    if .name == "adaptiveAcceleration" and .options.source == "mPulse" then
+                        .options.source = "MPULSE"
+                    else
+                        .
+                    end
+                ]
             else
                 .
             end
@@ -94,6 +106,9 @@ if [ $? -eq 0 ]; then
     echo ""
     echo "[Fields Removed]"
     echo "  - advancedOverride: $ADVANCED_OVERRIDE_COUNT occurrence(s)"
+    echo ""
+    echo "[Fields Modified]"
+    echo "  - adaptiveAcceleration.source: $ADAPTIVE_ACCEL_COUNT changed from 'mPulse' to 'MPULSE'"
     echo ""
     echo "========================================"
     echo "Output saved to: $OUTPUT_FILE"
