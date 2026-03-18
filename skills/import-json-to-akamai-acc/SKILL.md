@@ -29,7 +29,7 @@ Requirements: ACC credentials with PAPI client, valid contract, and a source (go
 
 ### 1) **Explain the purpose + prerequisites**
 
-Display the Purpose and Pre-requirements sections, then run `scripts/info_and_setup_source_property.sh` to configure the source property. See [references/step1-source-property.md](references/step1-source-property.md) for detailed instructions.
+Display the Purpose and Pre-requirements sections, then run `scripts/info_and_setup_source_property.sh -q` or `scripts/info_and_setup_source_property.sh -s ai-agent-example` to configure the source property. See [references/step1-source-property.md](references/step1-source-property.md) for detailed instructions.
 
 ### 2) **Set up Akamai CLI and credentials**
 
