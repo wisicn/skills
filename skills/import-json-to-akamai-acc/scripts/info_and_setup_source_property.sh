@@ -2,6 +2,24 @@
 
 set -e
 
+# Parse command line arguments
+QUIET_MODE=false
+SETUP_VALUE=""
+while getopts "qs:" opt; do
+    case $opt in
+        q)
+            QUIET_MODE=true
+            ;;
+        s)
+            SETUP_VALUE="$OPTARG"
+            ;;
+        \?)
+            echo "Usage: $0 [-q] [-s <property_name>]" >&2
+            exit 1
+            ;;
+    esac
+done
+
 # Display help message
 cat << 'EOF'
 This Agent Skill allows you to import an Akamai Property Manager configuration file (in JSON format) that was exported from another user's Akamai Control Center (ACC) into your own ACC. This is intended for review and reference purposes only — the import will not include subsequent steps such as adding hostnames or activating the property.
@@ -30,6 +48,37 @@ is_valid_source_property() {
         return 1
     fi
 }
+
+# Quiet mode: only check if golden file exists and is valid
+if [[ "$QUIET_MODE" == true ]]; then
+    if [[ -f "$GOLDEN_FILE" ]]; then
+        content=$(cat "$GOLDEN_FILE")
+        if is_valid_source_property "$content"; then
+            echo "Validate successful. Using existing source property: $content in your $GOLDEN_FILE"
+            exit 0
+        else
+            echo "Error: Invalid value in $GOLDEN_FILE." >&2
+            echo "Please set it with: $0 -s ai-agent-example" >&2
+            exit 1
+        fi
+    else
+        echo "Error: $GOLDEN_FILE does not exist." >&2
+        echo "Please create it with: $0 -s ai-agent-example" >&2
+        exit 1
+    fi
+fi
+
+# Setup mode: set the golden file with specified value
+if [[ -n "$SETUP_VALUE" ]]; then
+    if is_valid_source_property "$SETUP_VALUE"; then
+        echo "$SETUP_VALUE" > "$GOLDEN_FILE"
+        echo "Source property '$SETUP_VALUE' has been saved in '$GOLDEN_FILE' as your default."
+        exit 0
+    else
+        echo "Error: Invalid property name '$SETUP_VALUE'. It must be a single word without spaces." >&2
+        exit 1
+    fi
+fi
 
 # Check if the golden file exists
 if [[ -f "$GOLDEN_FILE" ]]; then
