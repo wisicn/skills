@@ -30,7 +30,7 @@ echo "Analyzing JSON file for removable items..."
 
 # Extract removed behavior names (before processing)
 REMOVED_BEHAVIORS=$(jq -r '
-[ .. | objects | select(has("behaviors") and (.behaviors | type == "array")) | .behaviors[] | select(.name == "advanced" or .name == "dnsPrefresh") | .name ] | group_by(.) | map({name: .[0], count: length}) | .[] | "  - \(.name): \(.count) item(s)"
+[ .. | objects | select(has("behaviors") and (.behaviors | type == "array")) | .behaviors[] | select(.name == "advanced" or .name == "dnsPrefresh" or .name == "persistentConnection" or .name == "persistentClientConnection") | .name ] | group_by(.) | map({name: .[0], count: length}) | .[] | "  - \(.name): \(.count) item(s)"
 ' "$INPUT_FILE")
 
 # Extract removed criteria names (before processing)
@@ -47,7 +47,7 @@ ADAPTIVE_ACCEL_COUNT=$(jq '[.. | objects | select(has("behaviors") and (.behavio
 # Use jq to:
 # 1. Recursively walk through JSON and delete all "advancedOverride" keys
 # 2. Remove all behaviors where "name" == "advanced"
-# 3. Remove read-only behaviors: "dnsPrefresh"
+# 3. Remove read-only behaviors: "dnsPrefresh", "persistentConnection", "persistentClientConnection"
 # 4. Remove read-only criteria: "matchAdvanced"
 # 5. Fix adaptiveAcceleration source: change "mPulse" to "MPULSE"
 jq '
@@ -59,7 +59,7 @@ def remove_readonly_elements:
             | # Filter out behaviors with name == "advanced" or read-only behaviors
             if has("behaviors") and (.behaviors | type == "array") then
                 .behaviors = [.behaviors[] | 
-                    select(.name != "advanced" and .name != "dnsPrefresh") |
+                    select(.name != "advanced" and .name != "dnsPrefresh" and .name != "persistentConnection" and .name != "persistentClientConnection") |
                     # Fix adaptiveAcceleration source case
                     if .name == "adaptiveAcceleration" and .options.source == "mPulse" then
                         .options.source = "MPULSE"
